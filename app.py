@@ -32,6 +32,7 @@ class AppPadre:
         self.page = page
         self.current_view = "dashboard"
         self._authenticated = False
+        self.user_data = None
         self._setup_page()
         self._show_login()
 
@@ -56,8 +57,9 @@ class AppPadre:
         self.page.views.append(login_view)
         self.page.update()
 
-    def _on_login_success(self):
+    def _on_login_success(self, user_data: dict):
         self._authenticated = True
+        self.user_data = user_data
         self._setup_main_ui()
 
     def _setup_main_ui(self):
@@ -140,4 +142,5 @@ class AppPadre:
 
     def _handle_logout(self):
         self._authenticated = False
+        self.user_data = None
         self._show_login()
