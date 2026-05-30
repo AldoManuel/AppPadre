@@ -117,6 +117,17 @@ CREATE TABLE public.asistencia (
   UNIQUE (id_alumno, fecha)
 );
 
+-- 4.3 Tareas asignadas por el docente al alumno
+CREATE TABLE public.tarea (
+  id_tarea SERIAL PRIMARY KEY,
+  id_alumno UUID NOT NULL REFERENCES public.alumno(id_alumno),
+  id_materia INTEGER NOT NULL REFERENCES public.materia(id_materia),
+  descripcion TEXT NOT NULL,
+  fecha_entrega DATE NOT NULL,
+  estado VARCHAR(20) NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'entregada', 'retrasada')),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- ==========================================================
 -- 5. TABLAS DE ACTIVIDAD DEL SISTEMA
 -- ==========================================================
@@ -398,7 +409,36 @@ INSERT INTO public.calificacion (id_alumno, id_materia, calificacion, periodo) V
   ('a0000000-0000-0000-0000-000000000018', 6, 7.5, 'Bimestre 1');
 
 -- ==========================================================
--- 15. DATOS INICIALES — CONFIGURACIÓN DEL ADMIN
+-- 15. DATOS INICIALES — TAREAS POR ALUMNO
+-- ==========================================================
+-- Se asignan 2-3 tareas por alumno con distintos estados
+
+INSERT INTO public.tarea (id_alumno, id_materia, descripcion, fecha_entrega, estado) VALUES
+  -- Diego Martínez (id_alumno = ...013) — hijo de Ana Martínez
+  ('a0000000-0000-0000-0000-000000000013', 1, 'Resolver ejercicios del 1 al 20 sobre fracciones',           '2026-06-01', 'pendiente'),
+  ('a0000000-0000-0000-0000-000000000013', 2, 'Línea del tiempo de la Revolución Mexicana',                  '2026-05-28', 'entregada'),
+  ('a0000000-0000-0000-0000-000000000013', 5, 'Redactar un ensayo sobre la lectura del libro',               '2026-06-02', 'pendiente'),
+
+  -- Sofía Díaz (id_alumno = ...014) — hija de Laura Díaz
+  ('a0000000-0000-0000-0000-000000000014', 1, 'Problemas de multiplicación y división',                      '2026-05-30', 'entregada'),
+  ('a0000000-0000-0000-0000-000000000014', 3, 'Investigación sobre el sistema solar',                        '2026-06-03', 'pendiente'),
+  ('a0000000-0000-0000-0000-000000000014', 6, 'Vocabulary list - Unit 5',                                    '2026-05-25', 'retrasada'),
+
+  -- Carlos Hernández (id_alumno = ...015) — hijo de Roberto Hernández
+  ('a0000000-0000-0000-0000-000000000015', 1, 'Ejercicios de geometría básica',                               '2026-06-04', 'pendiente'),
+  ('a0000000-0000-0000-0000-000000000015', 4, 'Rutina de ejercicios en casa',                                 '2026-05-26', 'retrasada'),
+
+  -- Luis Díaz (id_alumno = ...017) — hijo de Laura Díaz
+  ('a0000000-0000-0000-0000-000000000017', 5, 'Resumen del cuento "El principito"',                           '2026-06-05', 'pendiente'),
+  ('a0000000-0000-0000-0000-000000000017', 2, 'Mapa conceptual de las culturas prehispánicas',               '2026-05-29', 'entregada'),
+  ('a0000000-0000-0000-0000-000000000017', 6, 'English composition: My family',                               '2026-06-06', 'pendiente'),
+
+  -- Pedro Mendoza (id_alumno = ...018) — hijo de José Luis Mendoza
+  ('a0000000-0000-0000-0000-000000000018', 3, 'Dibujar el ciclo del agua',                                    '2026-05-27', 'entregada'),
+  ('a0000000-0000-0000-0000-000000000018', 1, 'Contar del 1 al 100 de 2 en 2',                                '2026-06-07', 'pendiente');
+
+-- ==========================================================
+-- 16. DATOS INICIALES — CONFIGURACIÓN DEL ADMIN
 -- ==========================================================
 
 INSERT INTO public.configuracion (id_usuario, tema, sidebar_colapsada, idioma, notificaciones_email, notificaciones_push, registros_por_pagina, formato_fecha, zona_horaria)
@@ -408,7 +448,7 @@ VALUES (
 );
 
 -- ==========================================================
--- 16. ACTUALIZAR PROMEDIOS (cálculo desde calificaciones)
+-- 17. ACTUALIZAR PROMEDIOS (cálculo desde calificaciones)
 -- ==========================================================
 
 UPDATE public.alumno a
@@ -419,7 +459,83 @@ SET promedio = (
 );
 
 -- ==========================================================
--- 17. FUNCIONES RPC PARA CRUD DE USUARIOS (Frontend)
+-- 18. FUNCIONES RPC PARA TAREAS
+-- ==========================================================
+
+CREATE OR REPLACE FUNCTION obtener_tareas(p_id_alumno UUID)
+RETURNS JSON AS $$
+DECLARE
+  v_result JSON;
+BEGIN
+  SELECT json_agg(json_build_object(
+    'id_tarea', t.id_tarea,
+    'materia', m.nombre,
+    'descripcion', t.descripcion,
+    'fecha', to_char(t.fecha_entrega, 'DD Mon YYYY'),
+    'estado', t.estado
+  ) ORDER BY t.fecha_entrega DESC)
+  INTO v_result
+  FROM public.tarea t
+  JOIN public.materia m ON t.id_materia = m.id_materia
+  WHERE t.id_alumno = p_id_alumno;
+
+  RETURN COALESCE(v_result, '[]'::json);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION obtener_tareas TO anon;
+
+-- ==========================================================
+-- 19. FUNCIONES RPC PARA REGISTRO DE HIJOS
+-- ==========================================================
+
+CREATE OR REPLACE FUNCTION registrar_hijo(
+  p_id_padre UUID,
+  p_nombre VARCHAR,
+  p_apellido_paterno VARCHAR,
+  p_apellido_materno VARCHAR DEFAULT NULL,
+  p_correo VARCHAR DEFAULT NULL,
+  p_id_grupo INTEGER DEFAULT 1,
+  p_parentesco VARCHAR DEFAULT 'TUTOR'
+)
+RETURNS JSON AS $$
+DECLARE
+  v_id_alumno UUID;
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM public.padre WHERE id_padre = p_id_padre) THEN
+    RETURN json_build_object('success', false, 'error', 'El padre no existe');
+  END IF;
+
+  IF p_parentesco NOT IN ('MADRE', 'PADRE', 'TUTOR') THEN
+    RETURN json_build_object('success', false, 'error', 'Parentesco inválido (MADRE, PADRE o TUTOR)');
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM public.grupo WHERE id_grupo = p_id_grupo) THEN
+    RETURN json_build_object('success', false, 'error', 'El grupo no existe');
+  END IF;
+
+  INSERT INTO public.usuario (nombre, apellido_paterno, apellido_materno, correo, rol, activo)
+  VALUES (p_nombre, p_apellido_paterno, p_apellido_materno, p_correo, 'ALUMNO', true)
+  RETURNING id_usuario INTO v_id_alumno;
+
+  INSERT INTO public.alumno (id_alumno, id_grupo, promedio)
+  VALUES (v_id_alumno, p_id_grupo, 0.00);
+
+  INSERT INTO public.alumno_padre (id_alumno, id_padre, parentesco)
+  VALUES (v_id_alumno, p_id_padre, p_parentesco);
+
+  RETURN json_build_object(
+    'success', true,
+    'id_alumno', v_id_alumno,
+    'nombre_completo', CONCAT(p_nombre, ' ', COALESCE(p_apellido_paterno, ''), ' ', COALESCE(p_apellido_materno, ''))
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION registrar_hijo TO anon;
+
+-- ==========================================================
+-- 20. FUNCIONES RPC PARA CRUD DE USUARIOS (Frontend)
 -- ==========================================================
 
 CREATE OR REPLACE FUNCTION obtener_usuarios()

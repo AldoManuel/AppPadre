@@ -10,41 +10,60 @@ from components.dialogs import show_alert
 logger = get_logger("dashboard_view")
 
 
-def _build_alumno_card(alumno, w, on_switch_child):
+def _get_index_of(hijos, selected_child):
+    if not hijos or not selected_child:
+        return 0
+    sid = selected_child.get("id_alumno") or selected_child.get("id_usuario")
+    for i, h in enumerate(hijos):
+        hid = h.get("id_alumno") or h.get("id_usuario")
+        if hid == sid:
+            return i
+    return 0
+
+
+def _build_alumno_card(hijos, selected_child, w, on_child_selected):
+    idx = _get_index_of(hijos, selected_child)
+    alumno = hijos[idx] if hijos else selected_child
+
+    def on_change(e):
+        if on_child_selected:
+            on_child_selected(int(e.control.value))
+
     return ft.Container(
-        content=ft.Row(
+        content=ft.Column(
             controls=[
-                ft.CircleAvatar(
-                    content=ft.Icon(ft.Icons.PERSON, size=30, color=AppColors.BLANCO),
-                    bgcolor=AppColors.AZUL_EDUCATIVO,
-                    radius=Responsive.avatar_size(w) // 2,
-                ),
-                ft.Column(
+                ft.Row(
                     controls=[
-                        ft.Text(
-                            alumno.get("nombre_completo", "Sin nombre"),
-                            size=Responsive.font_size_md(w),
-                            weight=ft.FontWeight.BOLD,
-                            color=AppColors.GRIS_OSCURO,
+                        ft.CircleAvatar(
+                            content=ft.Icon(ft.Icons.PERSON, size=30, color=AppColors.BLANCO),
+                            bgcolor=AppColors.AZUL_EDUCATIVO,
+                            radius=Responsive.avatar_size(w) // 2,
                         ),
-                        ft.Text(
-                            f'{alumno.get("grado", "")} • Grupo {alumno.get("grupo", "")}',
-                            size=Responsive.font_size_sm(w),
-                            color=AppColors.GRIS_TEXTO,
+                        ft.Container(
+                            content=ft.Dropdown(
+                                value=str(idx),
+                                options=[
+                                    ft.dropdown.Option(str(i), h.get("nombre_completo", "Sin nombre"))
+                                    for i, h in enumerate(hijos)
+                                ],
+                                on_select=on_change,
+                                text_size=14,
+                                border_radius=10,
+                                dense=True,
+                                expand=True,
+                            ),
+                            expand=True,
                         ),
                     ],
-                    spacing=2,
-                    expand=True,
+                    spacing=12,
                 ),
-                ft.Container(
-                    content=ft.Icon(ft.Icons.SYNC_ALT, size=20, color=AppColors.AZUL_EDUCATIVO),
-                    bgcolor=AppColors.AZUL_FONDO,
-                    border_radius=10,
-                    padding=8,
-                    on_click=on_switch_child,
+                ft.Text(
+                    f'{alumno.get("grado", "")} • Grupo {alumno.get("grupo", "")}',
+                    size=Responsive.font_size_sm(w),
+                    color=AppColors.GRIS_TEXTO,
                 ),
             ],
-            spacing=12,
+            spacing=4,
         ),
         bgcolor=AppColors.BLANCO,
         border_radius=16,
@@ -198,31 +217,63 @@ def _build_eventos(data):
     return ft.Column(controls=controls)
 
 
-def create_dashboard_view(page: ft.Page, user_data: dict, on_nav_change):
+def create_dashboard_view(page: ft.Page, user_data: dict, on_nav_change,
+                          selected_child=None, on_hijos_loaded=None, on_child_selected=None,
+                          on_nuevo_hijo=None):
     w = page.window.width if page.window else 600
     logger.debug("Renderizando dashboard para usuario %s", user_data.get("id_usuario"))
     pad = Responsive.padding(w)
 
     id_padre = user_data.get("id_usuario")
+    hijos = []
+
     alumno_card = ft.Container(content=ft.ProgressRing(), padding=20)
     stats_row = ft.Container(content=ft.ProgressRing(), padding=20)
     actividad_section = ft.Container(content=ft.ProgressRing(), padding=20)
     eventos_section = ft.Container(content=ft.ProgressRing(), padding=20)
 
     async def load_data():
+        nonlocal hijos
         try:
             data = await get_dashboard(id_padre)
             hijos = data.get("hijos", [])
+            if on_hijos_loaded:
+                on_hijos_loaded(hijos)
+
             if not hijos:
-                alumno_card.content = EmptyState(
-                    icon=ft.Icons.PERSON_OFF,
-                    title="Sin alumnos vinculados",
-                    subtitle="No tienes hijos registrados en el sistema",
+                alumno_card.content = ft.Container(
+                    content=ft.Column(
+                        controls=[
+                            EmptyState(
+                                icon=ft.Icons.PERSON_OFF,
+                                title="Sin alumnos vinculados",
+                                subtitle="No tienes hijos registrados en el sistema",
+                            ),
+                            ft.Container(height=8),
+                            ft.FilledButton(
+                                content=ft.Row(
+                                    controls=[
+                                        ft.Icon(ft.Icons.PERSON_ADD, size=18, color=AppColors.BLANCO),
+                                        ft.Text("Registrar Hijo", size=14),
+                                    ],
+                                    spacing=6,
+                                ),
+                                style=ft.ButtonStyle(
+                                    bgcolor=AppColors.AZUL_EDUCATIVO,
+                                    color=AppColors.BLANCO,
+                                    shape=ft.RoundedRectangleBorder(radius=12),
+                                ),
+                                on_click=lambda ev: on_nuevo_hijo() if on_nuevo_hijo else None,
+                            ),
+                        ],
+                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    ),
+                    padding=20,
                 )
                 stats_row.content = ft.Text("")
             else:
-                alumno = hijos[0]
-                alumno_card.content = _build_alumno_card(alumno, w, on_switch_child)
+                alumno = selected_child or hijos[0]
+                alumno_card.content = _build_alumno_card(hijos, selected_child, w, on_child_selected)
                 stats_row.content = _build_stats(alumno)
 
             actividad_section.content = _build_actividad(data)
@@ -234,11 +285,11 @@ def create_dashboard_view(page: ft.Page, user_data: dict, on_nav_change):
         finally:
             page.update()
 
-    def on_switch_child(e):
-        logger.debug("Cambiar hijo presionado")
-        show_alert(page, "Info", "Selección de múltiples hijos próximamente", ft.Icons.INFO)
-
     page.run_task(load_data)
+
+    def open_registro(e):
+        if on_nuevo_hijo:
+            on_nuevo_hijo()
 
     accesos = ft.ResponsiveRow(
         controls=[
@@ -284,6 +335,15 @@ def create_dashboard_view(page: ft.Page, user_data: dict, on_nav_change):
                     label="Progreso",
                     color=AppColors.GRIS_OSCURO,
                     on_click=lambda e: on_nav_change(5),
+                ),
+                col={"xs": 4, "sm": 3, "md": 2},
+            ),
+            ft.Container(
+                content=QuickAccessButton(
+                    icon=ft.Icons.PERSON_ADD,
+                    label="Registrar Hijo",
+                    color=AppColors.AZUL_EDUCATIVO,
+                    on_click=open_registro,
                 ),
                 col={"xs": 4, "sm": 3, "md": 2},
             ),

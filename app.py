@@ -14,6 +14,7 @@ from views.puntualidad_view import create_puntualidad_view
 from views.eventos_view import create_eventos_view
 from views.progreso_view import create_progreso_view
 from views.notificaciones_view import create_notificaciones_view
+from views.registro_hijo_view import create_registro_hijo_view
 
 logger = get_logger("app")
 
@@ -36,6 +37,8 @@ class AppPadre:
         self.current_view = "dashboard"
         self._authenticated = False
         self.user_data = None
+        self._hijos: list = []
+        self._selected_child: dict | None = None
         logger.info("Inicializando AppPadre (page=%s)", id(page))
         self._setup_page()
         self._show_login()
@@ -66,6 +69,8 @@ class AppPadre:
     def _on_login_success(self, user_data: dict):
         self._authenticated = True
         self.user_data = user_data
+        self._hijos = []
+        self._selected_child = None
         logger.info("Login exitoso: id_usuario=%s rol=%s nombre=%s",
                      user_data.get("id_usuario"),
                      user_data.get("rol"),
@@ -78,6 +83,38 @@ class AppPadre:
 
         self._update_view()
 
+    def _on_hijos_loaded(self, hijos: list):
+        self._hijos = hijos
+        if hijos and self._selected_child is None:
+            self._selected_child = hijos[0]
+            logger.info("Hijos cargados: %s, seleccionado: %s",
+                         len(hijos), self._selected_child.get("nombre_completo"))
+        elif not hijos:
+            self._selected_child = None
+
+    def select_child(self, index: int):
+        if 0 <= index < len(self._hijos):
+            self._selected_child = self._hijos[index]
+            logger.info("Hijo seleccionado: %s", self._selected_child.get("nombre_completo"))
+            self._update_view()
+
+    def _go_to_registro_hijo(self):
+        logger.debug("Navegando a registro de hijo")
+        self.current_view = "registro_hijo"
+        self._update_view()
+
+    def _on_registro_exitoso(self):
+        logger.info("Registro exitoso, volviendo al dashboard")
+        self.current_view = "dashboard"
+        self._hijos = []
+        self._selected_child = None
+        self._update_view()
+
+    def _on_registro_cancelado(self):
+        logger.debug("Registro cancelado, volviendo al dashboard")
+        self.current_view = "dashboard"
+        self._update_view()
+
     def _get_view_content(self, view_name: str):
         creators = {
             "dashboard": create_dashboard_view,
@@ -87,15 +124,55 @@ class AppPadre:
             "eventos": create_eventos_view,
             "progreso": create_progreso_view,
             "notificaciones": create_notificaciones_view,
+            "registro_hijo": create_registro_hijo_view,
         }
+        if view_name == "registro_hijo":
+            id_padre = (self.user_data or {}).get("id_usuario", "")
+            return create_registro_hijo_view(
+                self.page,
+                id_padre,
+                on_success=self._on_registro_exitoso,
+                on_cancel=self._on_registro_cancelado,
+            )
         creator = creators.get(view_name)
         if view_name == "dashboard":
-            return creator(self.page, self.user_data or {}, self._on_nav_change)
+            return creator(
+                self.page,
+                self.user_data or {},
+                self._on_nav_change,
+                selected_child=self._selected_child,
+                on_hijos_loaded=self._on_hijos_loaded,
+                on_child_selected=self.select_child,
+                on_nuevo_hijo=self._go_to_registro_hijo,
+            )
+        if view_name == "tareas":
+            return creator(self.page, selected_child=self._selected_child)
         return creator(self.page)
 
     def _build_main_view(self):
         title = VIEW_TITLES.get(self.current_view, "App Padre")
         content = self._get_view_content(self.current_view)
+
+        if self.current_view == "registro_hijo":
+            appbar = ft.AppBar(
+                title=ft.Text("Registrar Hijo", size=18, weight=ft.FontWeight.BOLD, color=AppColors.GRIS_OSCURO),
+                bgcolor=AppColors.BLANCO,
+                leading=ft.IconButton(
+                    icon=ft.Icons.ARROW_BACK,
+                    icon_color=AppColors.AZUL_EDUCATIVO,
+                    on_click=lambda e: self._on_registro_cancelado(),
+                ),
+                center_title=False,
+                elevation=0,
+            )
+            return ft.View(
+                route="/registro_hijo",
+                controls=[content],
+                appbar=appbar,
+                bgcolor=AppColors.GRIS_CLARO,
+                padding=0,
+                scroll=ft.ScrollMode.AUTO,
+            )
 
         appbar = ModernAppBar(self.page, title=title)
 
@@ -157,4 +234,6 @@ class AppPadre:
         logger.info("Cerrando sesión: user_data limpiado, redirigiendo a login")
         self._authenticated = False
         self.user_data = None
+        self._hijos = []
+        self._selected_child = None
         self._show_login()
