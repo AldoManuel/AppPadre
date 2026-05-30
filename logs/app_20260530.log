@@ -89,3 +89,29 @@
 2026-05-30 12:41:28 | INFO    | AppPadre.dashboard | Obteniendo dashboard para id_padre=0cd407be-8ef6-4038-ae00-2e3753772847
 2026-05-30 12:41:29 | DEBUG   | AppPadre.dashboard | Respuesta dashboard: status=400
 2026-05-30 12:41:29 | INFO    | AppPadre.dashboard | Dashboard obtenido: 0 hijos, 0 eventos
+2026-05-30 12:56:27 | INFO    | AppPadre.main | === FIN DE APLICACIÓN ===
+2026-05-30 12:56:38 | INFO    | AppPadre.main | === INICIO DE APLICACIÓN ===
+2026-05-30 12:56:38 | DEBUG   | AppPadre.main | Plataforma: Windows | Python | Flet 0.85.2
+2026-05-30 12:56:39 | INFO    | AppPadre.main | Iniciando AppPadre (ventana 390x844)
+2026-05-30 12:56:39 | INFO    | AppPadre.app | Inicializando AppPadre (page=1636263400304)
+2026-05-30 12:56:39 | DEBUG   | AppPadre.app | Página configurada: theme=light, min=320x480
+2026-05-30 12:56:39 | INFO    | AppPadre.app | Mostrando pantalla de login
+2026-05-30 12:56:54 | INFO    | AppPadre.login_view | Usuario presionó login: correo=emirsuarez@gmail.com
+2026-05-30 12:56:54 | INFO    | AppPadre.supabase | Intento de login: correo=emirsuarez@gmail.com
+2026-05-30 12:56:55 | DEBUG   | AppPadre.supabase | Respuesta HTTP: status=200
+2026-05-30 12:56:55 | INFO    | AppPadre.supabase | Login exitoso: id_usuario=0cd407be-8ef6-4038-ae00-2e3753772847 rol=PADRE nombre=Emir
+2026-05-30 12:56:55 | INFO    | AppPadre.login_view | Login exitoso desde la UI, redirigiendo...
+2026-05-30 12:56:55 | INFO    | AppPadre.app | Login exitoso: id_usuario=0cd407be-8ef6-4038-ae00-2e3753772847 rol=PADRE nombre=Emir
+2026-05-30 12:56:55 | DEBUG   | AppPadre.dashboard_view | Renderizando dashboard para usuario 0cd407be-8ef6-4038-ae00-2e3753772847
+2026-05-30 12:56:55 | INFO    | AppPadre.dashboard | Obteniendo dashboard para id_padre=0cd407be-8ef6-4038-ae00-2e3753772847
+2026-05-30 12:56:56 | DEBUG   | AppPadre.dashboard | Respuesta dashboard: status=200
+2026-05-30 12:56:56 | INFO    | AppPadre.dashboard | Dashboard obtenido: 1 hijos, 3 eventos
+2026-05-30 12:57:10 | INFO    | AppPadre.app | Navegación (navbar): tareas (index=1)
+2026-05-30 12:57:24 | INFO    | AppPadre.app | Navegación (navbar): asistencia (index=2)
+2026-05-30 12:57:39 | INFO    | AppPadre.app | Navegación (navbar): puntualidad (index=3)
+2026-05-30 12:57:43 | INFO    | AppPadre.app | Navegación (navbar): eventos (index=4)
+2026-05-30 12:57:58 | INFO    | AppPadre.app | Navegación (navbar): dashboard (index=0)
+2026-05-30 12:57:58 | DEBUG   | AppPadre.dashboard_view | Renderizando dashboard para usuario 0cd407be-8ef6-4038-ae00-2e3753772847
+2026-05-30 12:57:58 | INFO    | AppPadre.dashboard | Obteniendo dashboard para id_padre=0cd407be-8ef6-4038-ae00-2e3753772847
+2026-05-30 12:57:59 | DEBUG   | AppPadre.dashboard | Respuesta dashboard: status=200
+2026-05-30 12:57:59 | INFO    | AppPadre.dashboard | Dashboard obtenido: 1 hijos, 3 eventos
