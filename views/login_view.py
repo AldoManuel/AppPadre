@@ -1,3 +1,4 @@
+import re
 import flet as ft
 from services.logger import get_logger
 from styles.colors import AppColors
@@ -11,6 +12,29 @@ logger = get_logger("login_view")
 def create_login_view(page: ft.Page, on_login_success):
     w = page.window.width if page.window else 600
     pad = Responsive.padding(w)
+
+    COLOR_ERROR = "#D32F2F"
+
+    error_ui = ft.Text(
+        value="",
+        visible=False,
+        color=COLOR_ERROR,
+        size=12,
+        text_align=ft.TextAlign.CENTER,
+    )
+
+    def mostrar_error(mensaje: str):
+        error_ui.value = mensaje
+        error_ui.visible = True
+
+    def limpiar_errores(e=None):
+        correo_field.border_color = AppColors.GRIS_MEDIO
+        correo_field.error_text = None
+        contrasena_field.border_color = AppColors.GRIS_MEDIO
+        contrasena_field.error_text = None
+        error_ui.visible = False
+        if e:
+            page.update()
 
     correo_field = ft.TextField(
         label="Correo electrónico",
@@ -26,6 +50,8 @@ def create_login_view(page: ft.Page, on_login_success):
         fill_color=AppColors.GRIS_CLARO,
         text_size=14,
         label_style=ft.TextStyle(size=13, color=AppColors.GRIS_TEXTO),
+        on_focus=limpiar_errores,
+        on_change=limpiar_errores,
     )
     contrasena_field = ft.TextField(
         label="Contraseña",
@@ -43,6 +69,8 @@ def create_login_view(page: ft.Page, on_login_success):
         fill_color=AppColors.GRIS_CLARO,
         text_size=14,
         label_style=ft.TextStyle(size=13, color=AppColors.GRIS_TEXTO),
+        on_focus=limpiar_errores,
+        on_change=limpiar_errores,
     )
 
     login_btn = ft.Button(
@@ -68,7 +96,26 @@ def create_login_view(page: ft.Page, on_login_success):
 
         if not correo or not contrasena:
             logger.warning("Intento de login con campos vacíos")
+            if not correo:
+                correo_field.border_color = COLOR_ERROR
+                correo_field.error_text = "Campo obligatorio"
+            if not contrasena:
+                contrasena_field.border_color = COLOR_ERROR
+                contrasena_field.error_text = "Campo obligatorio"
+            mostrar_error("Todos los campos son obligatorios")
             show_alert(page, "Campos vacíos", "Todos los campos son obligatorios", ft.Icons.WARNING)
+            page.update()
+            return
+
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", correo):
+            logger.warning("Intento de login con correo inválido: %s", correo)
+            correo_field.border_color = COLOR_ERROR
+            correo_field.error_text = "Correo inválido"
+            contrasena_field.border_color = COLOR_ERROR
+            contrasena_field.error_text = None
+            mostrar_error("El correo electrónico no tiene un formato válido")
+            show_alert(page, "Correo inválido", "El correo electrónico no tiene un formato válido", ft.Icons.WARNING)
+            page.update()
             return
 
         logger.info("Usuario presionó login: correo=%s", correo)
@@ -84,10 +131,18 @@ def create_login_view(page: ft.Page, on_login_success):
             on_login_success(user_data)
         except LoginError as err:
             logger.warning("Login rechazado para %s: %s", correo, err.mensaje)
+            correo_field.border_color = COLOR_ERROR
+            correo_field.error_text = err.mensaje
+            contrasena_field.border_color = COLOR_ERROR
+            contrasena_field.error_text = None
+            mostrar_error(err.mensaje)
             show_alert(page, "Error al iniciar sesión", err.mensaje, ft.Icons.ERROR_OUTLINE)
+            page.update()
         except Exception as exc:
             logger.error("Error no controlado en login para %s: %s", correo, exc)
+            mostrar_error("Ocurrió un error inesperado. Intenta de nuevo")
             show_alert(page, "Error inesperado", "Ocurrió un error. Intenta de nuevo", ft.Icons.ERROR_OUTLINE)
+            page.update()
         finally:
             login_btn.disabled = False
             login_btn.content = ft.Text("Iniciar Sesión", size=15, weight=ft.FontWeight.BOLD)
@@ -131,7 +186,9 @@ def create_login_view(page: ft.Page, on_login_success):
                             correo_field,
                             ft.Container(height=10),
                             contrasena_field,
-                            ft.Container(height=20),
+                            ft.Container(height=6),
+                            error_ui,
+                            ft.Container(height=14),
                             login_btn,
                             ft.Container(height=10),
                             ft.TextButton(
