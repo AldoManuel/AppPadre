@@ -1,8 +1,11 @@
 import flet as ft
+from services.logger import get_logger
 from styles.colors import AppColors
 from styles.responsive import Responsive
 from components.dialogs import show_alert
 from services.supabase_service import login as supabase_login, LoginError
+
+logger = get_logger("login_view")
 
 
 def create_login_view(page: ft.Page, on_login_success):
@@ -64,8 +67,11 @@ def create_login_view(page: ft.Page, on_login_success):
         contrasena = contrasena_field.value if contrasena_field.value else ""
 
         if not correo or not contrasena:
+            logger.warning("Intento de login con campos vacíos")
             show_alert(page, "Campos vacíos", "Todos los campos son obligatorios", ft.Icons.WARNING)
             return
+
+        logger.info("Usuario presionó login: correo=%s", correo)
 
         login_btn.disabled = True
         login_btn.content = ft.ProgressRing(width=20, height=20, color=AppColors.BLANCO)
@@ -73,11 +79,14 @@ def create_login_view(page: ft.Page, on_login_success):
 
         try:
             user_data = await supabase_login(correo, contrasena)
+            logger.info("Login exitoso desde la UI, redirigiendo...")
             show_alert(page, "Bienvenido", f"Inicio de sesión exitoso. Redirigiendo...", ft.Icons.CHECK_CIRCLE)
             on_login_success(user_data)
         except LoginError as err:
+            logger.warning("Login rechazado para %s: %s", correo, err.mensaje)
             show_alert(page, "Error al iniciar sesión", err.mensaje, ft.Icons.ERROR_OUTLINE)
-        except Exception:
+        except Exception as exc:
+            logger.error("Error no controlado en login para %s: %s", correo, exc)
             show_alert(page, "Error inesperado", "Ocurrió un error. Intenta de nuevo", ft.Icons.ERROR_OUTLINE)
         finally:
             login_btn.disabled = False

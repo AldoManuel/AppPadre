@@ -1,0 +1,91 @@
+2026-05-30 11:47:52 | INFO    | AppPadre.test | Test exitoso
+2026-05-30 11:50:03 | INFO    | AppPadre.main | === INICIO DE APLICACIÓN ===
+2026-05-30 11:50:03 | DEBUG   | AppPadre.main | Plataforma: Windows | Python | Flet 0.85.2
+2026-05-30 11:52:51 | INFO    | AppPadre.main | === FIN DE APLICACIÓN ===
+2026-05-30 11:53:00 | INFO    | AppPadre.main | === INICIO DE APLICACIÓN ===
+2026-05-30 11:53:00 | DEBUG   | AppPadre.main | Plataforma: Windows | Python | Flet 0.85.2
+2026-05-30 11:53:01 | INFO    | AppPadre.main | Iniciando AppPadre (ventana 390x844)
+2026-05-30 11:53:01 | INFO    | AppPadre.app | Inicializando AppPadre (page=1773004262864)
+2026-05-30 11:53:01 | DEBUG   | AppPadre.app | Página configurada: theme=light, min=320x480
+2026-05-30 11:53:01 | INFO    | AppPadre.app | Mostrando pantalla de login
+2026-05-30 11:53:27 | INFO    | AppPadre.login_view | Usuario presionó login: correo=ana.martinez@email.com
+2026-05-30 11:53:27 | INFO    | AppPadre.supabase | Intento de login: correo=ana.martinez@email.com
+2026-05-30 11:53:29 | DEBUG   | AppPadre.supabase | Respuesta HTTP: status=200
+2026-05-30 11:53:29 | INFO    | AppPadre.supabase | Login exitoso: id_usuario=a0000000-0000-0000-0000-000000000008 rol=PADRE nombre=Ana
+2026-05-30 11:53:29 | INFO    | AppPadre.login_view | Login exitoso desde la UI, redirigiendo...
+2026-05-30 11:53:29 | INFO    | AppPadre.app | Login exitoso: id_usuario=a0000000-0000-0000-0000-000000000008 rol=PADRE nombre=Ana
+2026-05-30 11:53:29 | DEBUG   | AppPadre.dashboard_view | Renderizando dashboard (width=389.6)
+2026-05-30 11:53:36 | INFO    | AppPadre.app | Navegación (drawer): logout solicitado
+2026-05-30 11:53:36 | INFO    | AppPadre.app | Cerrando sesión: user_data limpiado, redirigiendo a login
+2026-05-30 11:53:36 | INFO    | AppPadre.app | Mostrando pantalla de login
+2026-05-30 11:53:54 | INFO    | AppPadre.login_view | Usuario presionó login: correo=emirsuarez@gmail.com
+2026-05-30 11:53:54 | INFO    | AppPadre.supabase | Intento de login: correo=emirsuarez@gmail.com
+2026-05-30 11:53:55 | DEBUG   | AppPadre.supabase | Respuesta HTTP: status=200
+2026-05-30 11:53:55 | WARNING | AppPadre.supabase | Login fallido para emirsuarez@gmail.com: Credenciales inválidas
+2026-05-30 11:53:55 | WARNING | AppPadre.login_view | Login rechazado para emirsuarez@gmail.com: Credenciales inválidas
+2026-05-30 11:55:12 | INFO    | AppPadre.main | === FIN DE APLICACIÓN ===
+2026-05-30 12:02:59 | INFO    | AppPadre.main | === INICIO DE APLICACIÓN ===
+2026-05-30 12:02:59 | DEBUG   | AppPadre.main | Plataforma: Windows | Python | Flet 0.85.2
+2026-05-30 12:03:01 | INFO    | AppPadre.main | Iniciando AppPadre (ventana 390x844)
+2026-05-30 12:03:01 | INFO    | AppPadre.app | Inicializando AppPadre (page=2468514040912)
+2026-05-30 12:03:01 | DEBUG   | AppPadre.app | Página configurada: theme=light, min=320x480
+2026-05-30 12:03:01 | INFO    | AppPadre.app | Mostrando pantalla de login
+2026-05-30 12:03:22 | INFO    | AppPadre.login_view | Usuario presionó login: correo=emirsuarez@gmail.com
+2026-05-30 12:03:22 | INFO    | AppPadre.supabase | Intento de login: correo=emirsuarez@gmail.com
+2026-05-30 12:03:24 | DEBUG   | AppPadre.supabase | Respuesta HTTP: status=200
+2026-05-30 12:03:24 | INFO    | AppPadre.supabase | Login exitoso: id_usuario=0cd407be-8ef6-4038-ae00-2e3753772847 rol=PADRE nombre=Emir
+2026-05-30 12:03:24 | INFO    | AppPadre.login_view | Login exitoso desde la UI, redirigiendo...
+2026-05-30 12:03:24 | INFO    | AppPadre.app | Login exitoso: id_usuario=0cd407be-8ef6-4038-ae00-2e3753772847 rol=PADRE nombre=Emir
+2026-05-30 12:03:24 | DEBUG   | AppPadre.dashboard_view | Renderizando dashboard (width=389.6)
+2026-05-30 12:25:23 | INFO    | AppPadre.main | === FIN DE APLICACIÓN ===
+2026-05-30 12:25:37 | INFO    | AppPadre.main | === INICIO DE APLICACIÓN ===
+2026-05-30 12:25:37 | DEBUG   | AppPadre.main | Plataforma: Windows | Python | Flet 0.85.2
+2026-05-30 12:25:37 | INFO    | AppPadre.main | Iniciando AppPadre (ventana 390x844)
+2026-05-30 12:25:37 | INFO    | AppPadre.app | Inicializando AppPadre (page=1831053529536)
+2026-05-30 12:25:37 | DEBUG   | AppPadre.app | Página configurada: theme=light, min=320x480
+2026-05-30 12:25:37 | INFO    | AppPadre.app | Mostrando pantalla de login
+2026-05-30 12:25:59 | INFO    | AppPadre.login_view | Usuario presionó login: correo=emirsuarez@gmail.com
+2026-05-30 12:25:59 | INFO    | AppPadre.supabase | Intento de login: correo=emirsuarez@gmail.com
+2026-05-30 12:26:01 | DEBUG   | AppPadre.supabase | Respuesta HTTP: status=200
+2026-05-30 12:26:01 | INFO    | AppPadre.supabase | Login exitoso: id_usuario=0cd407be-8ef6-4038-ae00-2e3753772847 rol=PADRE nombre=Emir
+2026-05-30 12:26:01 | INFO    | AppPadre.login_view | Login exitoso desde la UI, redirigiendo...
+2026-05-30 12:26:01 | INFO    | AppPadre.app | Login exitoso: id_usuario=0cd407be-8ef6-4038-ae00-2e3753772847 rol=PADRE nombre=Emir
+2026-05-30 12:26:01 | DEBUG   | AppPadre.dashboard_view | Renderizando dashboard para usuario 0cd407be-8ef6-4038-ae00-2e3753772847
+2026-05-30 12:26:01 | INFO    | AppPadre.dashboard | Obteniendo dashboard para id_padre=0cd407be-8ef6-4038-ae00-2e3753772847
+2026-05-30 12:26:01 | DEBUG   | AppPadre.dashboard | Respuesta dashboard: status=400
+2026-05-30 12:26:01 | INFO    | AppPadre.dashboard | Dashboard obtenido: 0 hijos, 0 eventos
+2026-05-30 12:28:46 | INFO    | AppPadre.app | Navegación (drawer): logout solicitado
+2026-05-30 12:28:46 | INFO    | AppPadre.app | Cerrando sesión: user_data limpiado, redirigiendo a login
+2026-05-30 12:28:46 | INFO    | AppPadre.app | Mostrando pantalla de login
+2026-05-30 12:29:08 | INFO    | AppPadre.login_view | Usuario presionó login: correo=ana.martinez@gmail.com
+2026-05-30 12:29:08 | INFO    | AppPadre.supabase | Intento de login: correo=ana.martinez@gmail.com
+2026-05-30 12:29:09 | DEBUG   | AppPadre.supabase | Respuesta HTTP: status=200
+2026-05-30 12:29:09 | WARNING | AppPadre.supabase | Login fallido para ana.martinez@gmail.com: Credenciales inválidas
+2026-05-30 12:29:09 | WARNING | AppPadre.login_view | Login rechazado para ana.martinez@gmail.com: Credenciales inválidas
+2026-05-30 12:29:38 | INFO    | AppPadre.login_view | Usuario presionó login: correo=ana.martinez@email.com
+2026-05-30 12:29:38 | INFO    | AppPadre.supabase | Intento de login: correo=ana.martinez@email.com
+2026-05-30 12:29:38 | DEBUG   | AppPadre.supabase | Respuesta HTTP: status=200
+2026-05-30 12:29:38 | INFO    | AppPadre.supabase | Login exitoso: id_usuario=a0000000-0000-0000-0000-000000000008 rol=PADRE nombre=Ana
+2026-05-30 12:29:38 | INFO    | AppPadre.login_view | Login exitoso desde la UI, redirigiendo...
+2026-05-30 12:29:38 | INFO    | AppPadre.app | Login exitoso: id_usuario=a0000000-0000-0000-0000-000000000008 rol=PADRE nombre=Ana
+2026-05-30 12:29:38 | DEBUG   | AppPadre.dashboard_view | Renderizando dashboard para usuario a0000000-0000-0000-0000-000000000008
+2026-05-30 12:29:38 | INFO    | AppPadre.dashboard | Obteniendo dashboard para id_padre=a0000000-0000-0000-0000-000000000008
+2026-05-30 12:29:39 | DEBUG   | AppPadre.dashboard | Respuesta dashboard: status=400
+2026-05-30 12:29:39 | INFO    | AppPadre.dashboard | Dashboard obtenido: 0 hijos, 0 eventos
+2026-05-30 12:40:59 | INFO    | AppPadre.main | === FIN DE APLICACIÓN ===
+2026-05-30 12:41:04 | INFO    | AppPadre.main | === INICIO DE APLICACIÓN ===
+2026-05-30 12:41:04 | DEBUG   | AppPadre.main | Plataforma: Windows | Python | Flet 0.85.2
+2026-05-30 12:41:04 | INFO    | AppPadre.main | Iniciando AppPadre (ventana 390x844)
+2026-05-30 12:41:04 | INFO    | AppPadre.app | Inicializando AppPadre (page=2338766459760)
+2026-05-30 12:41:04 | DEBUG   | AppPadre.app | Página configurada: theme=light, min=320x480
+2026-05-30 12:41:04 | INFO    | AppPadre.app | Mostrando pantalla de login
+2026-05-30 12:41:27 | INFO    | AppPadre.login_view | Usuario presionó login: correo=emirsuarez@gmail.com
+2026-05-30 12:41:27 | INFO    | AppPadre.supabase | Intento de login: correo=emirsuarez@gmail.com
+2026-05-30 12:41:28 | DEBUG   | AppPadre.supabase | Respuesta HTTP: status=200
+2026-05-30 12:41:28 | INFO    | AppPadre.supabase | Login exitoso: id_usuario=0cd407be-8ef6-4038-ae00-2e3753772847 rol=PADRE nombre=Emir
+2026-05-30 12:41:28 | INFO    | AppPadre.login_view | Login exitoso desde la UI, redirigiendo...
+2026-05-30 12:41:28 | INFO    | AppPadre.app | Login exitoso: id_usuario=0cd407be-8ef6-4038-ae00-2e3753772847 rol=PADRE nombre=Emir
+2026-05-30 12:41:28 | DEBUG   | AppPadre.dashboard_view | Renderizando dashboard para usuario 0cd407be-8ef6-4038-ae00-2e3753772847
+2026-05-30 12:41:28 | INFO    | AppPadre.dashboard | Obteniendo dashboard para id_padre=0cd407be-8ef6-4038-ae00-2e3753772847
+2026-05-30 12:41:29 | DEBUG   | AppPadre.dashboard | Respuesta dashboard: status=400
+2026-05-30 12:41:29 | INFO    | AppPadre.dashboard | Dashboard obtenido: 0 hijos, 0 eventos

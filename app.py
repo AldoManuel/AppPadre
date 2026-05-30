@@ -1,4 +1,5 @@
 import flet as ft
+from services.logger import get_logger
 from styles.colors import AppColors
 from styles.theme import AppTheme
 from styles.responsive import Responsive
@@ -13,6 +14,8 @@ from views.puntualidad_view import create_puntualidad_view
 from views.eventos_view import create_eventos_view
 from views.progreso_view import create_progreso_view
 from views.notificaciones_view import create_notificaciones_view
+
+logger = get_logger("app")
 
 
 VIEWS = ["dashboard", "tareas", "asistencia", "puntualidad", "eventos", "progreso", "notificaciones"]
@@ -33,6 +36,7 @@ class AppPadre:
         self.current_view = "dashboard"
         self._authenticated = False
         self.user_data = None
+        logger.info("Inicializando AppPadre (page=%s)", id(page))
         self._setup_page()
         self._show_login()
 
@@ -46,12 +50,14 @@ class AppPadre:
         self.page.window.min_width = 320
         self.page.window.min_height = 480
         self.page.on_resize = self._on_resize
+        logger.debug("Página configurada: theme=light, min=%sx%s", 320, 480)
 
     def _on_resize(self, e):
         if self._authenticated:
             self._update_view()
 
     def _show_login(self):
+        logger.info("Mostrando pantalla de login")
         self.page.views.clear()
         login_view = create_login_view(self.page, self._on_login_success)
         self.page.views.append(login_view)
@@ -60,6 +66,10 @@ class AppPadre:
     def _on_login_success(self, user_data: dict):
         self._authenticated = True
         self.user_data = user_data
+        logger.info("Login exitoso: id_usuario=%s rol=%s nombre=%s",
+                     user_data.get("id_usuario"),
+                     user_data.get("rol"),
+                     user_data.get("nombre"))
         self._setup_main_ui()
 
     def _setup_main_ui(self):
@@ -80,7 +90,7 @@ class AppPadre:
         }
         creator = creators.get(view_name)
         if view_name == "dashboard":
-            return creator(self.page, self._on_nav_change)
+            return creator(self.page, self.user_data or {}, self._on_nav_change)
         return creator(self.page)
 
     def _build_main_view(self):
@@ -117,6 +127,7 @@ class AppPadre:
         if 0 <= index < len(VIEWS):
             self.current_view = VIEWS[index]
             self.nav_bar.selected_index = index
+            logger.info("Navegación (navbar): %s (index=%s)", self.current_view, index)
             self._update_view()
 
     async def _on_drawer_change(self, e):
@@ -132,15 +143,18 @@ class AppPadre:
         if index < len(drawer_destinations):
             dest = drawer_destinations[index]
             if dest == "logout":
+                logger.info("Navegación (drawer): logout solicitado")
                 self._handle_logout()
             else:
                 self.current_view = dest
                 nav_index = VIEWS.index(dest) if dest in VIEWS else 0
                 self.nav_bar.selected_index = nav_index
+                logger.info("Navegación (drawer): %s (index=%s)", self.current_view, index)
                 self._update_view()
         self.page.update()
 
     def _handle_logout(self):
+        logger.info("Cerrando sesión: user_data limpiado, redirigiendo a login")
         self._authenticated = False
         self.user_data = None
         self._show_login()
